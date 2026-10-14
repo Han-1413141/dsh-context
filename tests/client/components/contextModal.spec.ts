@@ -141,7 +141,7 @@ describe('ContextModal', () => {
     const seg = query(compCard, '.lc-stacked-seg')
     await hover(seg)
     assert.ok(query(compCard, '.lc-stacked').className.includes('lc-stacked-dim'))
-    assert.ok(queryAll(compCard, '.lc-chip').some(c => c.className.includes('lc-chip-on')))
+    assert.equal(queryAll(compCard, '.lc-treemap-on').length, 1)
     await unhover(query(compCard, '.lc-stacked'))
     assert.ok(!query(compCard, '.lc-stacked').className.includes('lc-stacked-dim'))
     await m.unmount()
@@ -434,7 +434,9 @@ describe('ContextModal', () => {
 
 describe('ContextModal — the split generation', () => {
   test('the modal shares the detail route: the browser lands the collections on open', async () => {
-    vi.stubGlobal('fetch', async () => ({
+    let release: () => void = () => {}
+    const pending = new Promise<void>((resolve) => { release = resolve })
+    vi.stubGlobal('fetch', async () => { await pending; return {
       ok: true,
       status: 200,
       json: async () => ({
@@ -448,7 +450,7 @@ describe('ContextModal — the split generation', () => {
           archive: [],
         },
       }),
-    }))
+    } })
     const ctx = new TestClientCtx({ services: { sessions: new TestSessions() } })
     const ContextModal = makeContextModal(asClientCtx(ctx), kit, settings)
     const head = timeline({
@@ -464,9 +466,45 @@ describe('ContextModal — the split generation', () => {
     // The composition card paints off the head while the browser's detail note shows.
     assert.ok(text(m.container).includes(DICT_EN['overview.title']))
     assert.ok(text(m.container).includes(DICT_EN['detail.loading']))
+    await act(async () => { release() })
     await until(() => !text(m.container).includes(DICT_EN['detail.loading']), 'the modal detail never landed')
     assert.equal(queryAll(m.container, '.lc-br-pick option').length, 2, 'live + the one served step')
     assert.ok(text(m.container).includes('1 Item'), 'the assistant section counts the served node')
+    await m.unmount()
+  })
+
+  test('Escape dismisses a treemap detail before closing the context modal', async () => {
+    const ctx = new TestClientCtx({ services: { sessions: new TestSessions() } })
+    const ContextModal = makeContextModal(asClientCtx(ctx), kit, settings)
+    const sid = 'sm-treemap-escape'
+    modalStoreOf(sid).set(true)
+    const head = timeline({ nodes: [{ seq: 1, cat: 'user', tokens: 3, text: 'Selected message' }] })
+    const m = await mount(h(ContextModal, {
+      sessionId: sid, useContextModal: boundModalHook(sid),
+      useProjection: (key: string) => key === 'contextTimeline' ? head : undefined,
+    }))
+    const tile = query(m.container, '.lc-treemap-leaf:not(.lc-treemap-missing)')
+    await click(tile)
+    assert.ok(text(query(document, '.lc-treemap-popover')).includes('Selected message'))
+    await keydown('Escape')
+    assert.equal(queryAll(document, '.lc-treemap-popover').length, 0)
+    assert.equal(modalStoreOf(sid).getSnapshot(), true)
+    await keydown('Escape')
+    assert.equal(modalStoreOf(sid).getSnapshot(), false)
+    await m.unmount()
+  })
+
+  test('switching sessions clears the selected tile and its cached content', async () => {
+    const ctx = new TestClientCtx({ services: { sessions: new TestSessions() } })
+    const ContextModal = makeContextModal(asClientCtx(ctx), kit, settings)
+    const head = timeline({ nodes: [{ seq: 1, cat: 'user', tokens: 3, text: 'First session' }] })
+    const props = { useContextModal: OPEN, useProjection: (key: string) => key === 'contextTimeline' ? head : undefined }
+    const m = await mount(h(ContextModal, { ...props, sessionId: 'sm-treemap-first' }))
+    await click(query(m.container, '.lc-treemap-leaf:not(.lc-treemap-missing)'))
+    assert.equal(queryAll(document, '.lc-treemap-popover').length, 1)
+    await m.update(h(ContextModal, { ...props, sessionId: 'sm-treemap-next' }))
+    assert.equal(queryAll(document, '.lc-treemap-popover').length, 0)
+    assert.equal(queryAll(m.container, '.lc-treemap-picked').length, 0)
     await m.unmount()
   })
 

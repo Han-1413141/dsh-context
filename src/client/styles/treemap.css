@@ -1,0 +1,39 @@
+.lc-treemap { margin-top: 14px; container: lc-treemap / inline-size; }
+.lc-treemap-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+.lc-treemap-toolbar > span { margin-left: auto; color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.lc-treemap-back { border: 0; background: transparent; color: var(--dsw-alias-label-primary); padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
+.lc-treemap-back:disabled { cursor: default; }
+.lc-treemap-back:not(:disabled):hover { text-decoration: underline; }
+.lc-treemap-map { position: relative; height: 300px; width: 100%; overflow: hidden; border-radius: 7px; background: var(--dsw-alias-bg-layer-2); }
+.lc-treemap-group { position: absolute; box-sizing: border-box; border: 1px solid var(--dsw-alias-bg-layer-1); background: color-mix(in srgb, var(--lc-tile-color) 14%, var(--dsw-alias-bg-layer-1)); overflow: hidden; transition: opacity var(--ds-transition-duration, .2s); }
+.lc-treemap-group-title { display: flex; align-items: center; gap: 6px; width: 100%; height: 27px; box-sizing: border-box; border: 0; padding: 0 8px; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 11px; cursor: zoom-in; white-space: nowrap; }
+.lc-treemap-group-title b { overflow: hidden; text-overflow: ellipsis; }
+.lc-treemap-group-title > span { margin-left: auto; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.lc-treemap-children { position: absolute; top: 28px; left: 1px; right: 1px; bottom: 1px; }
+.lc-treemap-leaf { position: absolute; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; box-sizing: border-box; padding: 0; border: 1px solid var(--dsw-alias-bg-layer-1); background: color-mix(in srgb, var(--lc-tile-color) var(--lc-tile-tone), var(--dsw-alias-bg-layer-1)); color: var(--dsw-alias-label-primary); font: inherit; text-align: left; overflow: hidden; cursor: pointer; container: lc-tile / size; }
+.lc-treemap-leaf-label, .lc-treemap-leaf-value { display: block; box-sizing: border-box; width: 100%; padding: 0 9px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.lc-treemap-leaf-label { font-size: 12px; font-weight: 600; }
+.lc-treemap-leaf-value { font-size: 11px; font-variant-numeric: tabular-nums; }
+.lc-treemap-missing { background: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--lc-tile-color) 16%, transparent) 5px 7px); }
+.lc-treemap-leaf:hover, .lc-treemap-picked { box-shadow: inset 0 0 0 2px var(--dsw-alias-label-primary); z-index: 1; }
+.lc-treemap button:focus-visible { outline: 2px solid var(--dsw-alias-label-primary); outline-offset: -3px; z-index: 2; }
+.lc-treemap-dim .lc-treemap-group { opacity: .35; }
+.lc-treemap-dim .lc-treemap-on { opacity: 1; }
+.lc-treemap-categories { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
+.lc-treemap-categories button { display: flex; align-items: center; gap: 6px; border: 0; border-radius: 4px; padding: 3px 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 11px; cursor: zoom-in; }
+.lc-treemap-categories button[aria-pressed=true] { text-decoration: underline; text-underline-offset: 3px; }
+.lc-treemap-categories i { width: 8px; height: 8px; border-radius: 2px; }
+.lc-treemap-categories span { color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.lc-treemap-detail { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; min-height: 18px; line-height: 1.5; font-size: 11px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.lc-treemap-detail b { color: var(--dsw-alias-label-primary); font-weight: 500; }
+@container lc-tile (width < 75px) { .lc-treemap-leaf-label { display: none; } .lc-treemap-leaf-value { padding: 0 4px; font-size: 10px; } }
+@container lc-tile (width < 35px) or (height < 28px) { .lc-treemap-leaf-label, .lc-treemap-leaf-value { display: none; } }
+@container lc-tile (height < 50px) { .lc-treemap-leaf-label { display: none; } }
+@container lc-treemap (width < 500px) { .lc-treemap-map { height: 360px; } .lc-treemap-toolbar > span { margin-left: 0; width: 100%; } }
+.lc-treemap-popover { position: fixed; z-index: 310; display: flex; flex-direction: column; width: min(480px, calc(100vw - 24px)); max-height: min(460px, calc(100dvh - 24px)); box-sizing: border-box; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); box-shadow: var(--dsw-shadow-lv3, 0 8px 32px rgb(0 0 0 / 18%)); font-family: var(--dsw-font-family, inherit); font-size: 12px; outline: none; }
+.lc-treemap-popover-head { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--dsw-alias-border-l2); }
+.lc-treemap-popover-head > div { min-width: 0; display: flex; flex-direction: column; gap: 5px; overflow-wrap: anywhere; }
+.lc-treemap-popover-head b { font-weight: 600; }
+.lc-treemap-popover-head span { color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.lc-treemap-popover-body { overflow: auto; overscroll-behavior: contain; min-height: 0; padding: 10px 14px 14px; }
+.lc-treemap-popover .lc-ts-card-head { flex-wrap: wrap; }

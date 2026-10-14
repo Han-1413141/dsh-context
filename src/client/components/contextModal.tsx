@@ -49,6 +49,7 @@ export function makeContextModal(
     // Read unconditionally, before the closed early return, so hook order stays stable across open/close.
     const convNodes = conversationNodesOf(props)
     const [hoverCat, setHoverCat] = useState<string | null>(null)
+    const [detailOpen, setDetailOpen] = useState(false)
     const [dock, setDock] = useState({ left: 0, right: 0 })
     const backdropRef = useRef<HTMLDivElement | null>(null)
     const loadImage = useMemo(
@@ -85,7 +86,7 @@ export function makeContextModal(
     }, [ctx, sessionId])
 
     // Capture-phase Escape close + focus restore (the shared overlay contract).
-    useEscapeClose(open, close)
+    useEscapeClose(open, () => { if (!detailOpen) close() })
 
     // The sidebar tracks are measured once before first paint, then followed while open: drags, collapse toggles, and
     // narrow-viewport re-solves all rewrite the frame's inline template.
@@ -124,7 +125,12 @@ export function makeContextModal(
           ) : (
             <div>
               <CurrentComposition
+                key={sessionId}
                 head={head}
+                data={data}
+                headers={headers}
+                content={{ convNodes, fetchContent, fetchHeader, loadImage, openAttachment }}
+                onDetailOpenChange={setDetailOpen}
                 subtitle={subtitle}
                 hoverKey={hoverCat}
                 onHoverKey={setHoverCat}

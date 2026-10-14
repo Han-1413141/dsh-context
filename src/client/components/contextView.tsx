@@ -432,7 +432,11 @@ export function makeContextView(
 
     const compositionCard = (
       <CurrentComposition
+        key={sessionId}
         head={head}
+        data={data}
+        headers={headers}
+        content={{ convNodes, fetchContent, fetchHeader, loadImage, openAttachment }}
         subtitle={subtitle}
         hoverKey={hoverCat}
         onHoverKey={setHoverCat}

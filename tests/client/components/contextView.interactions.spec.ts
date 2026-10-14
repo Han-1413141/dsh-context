@@ -124,7 +124,7 @@ describe('ContextView — interactions', () => {
     const comp = queryAll(m.container, '.lc-card').find(c => text(c).includes(DICT_EN['overview.title']))
     assert.ok(comp !== undefined)
 
-    const chip = query(comp, '.lc-legend .lc-chip')
+    const chip = query(comp, '.lc-treemap-categories button')
     await hover(chip)
     assert.ok(query(m.container, '.lc-br-cat-row').className.includes('lc-br-cat-on'))
     await unhover(chip)
